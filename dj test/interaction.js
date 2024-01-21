@@ -8,6 +8,7 @@ const provider = new ethers.providers.JsonRpcProvider(`https://replicator.pegasu
 const contractAddress = 'yourContractAddress';
 // Replace 'yourLLTokenAddress' with the actual LL token address on the Lightlink test network
 const llTokenAddress = 'yourLLTokenAddress';
+
 // Function to create a new wallet
 function createWallet() {
   const wallet = ethers.Wallet.createRandom();
@@ -53,6 +54,17 @@ async function sendETH(senderWallet, receiverAddress, amount) {
   return transaction;
 }
 
+// Function to receive ETH - Displays a QR code with the wallet address
+function receiveETH(wallet) {
+  console.log('Scan the QR code below to send ETH to this wallet:');
+  qrcode.generate(wallet.address, { small: true });
+}
+
+// Function to display the current account's public address
+function displayCurrentAddress(wallet) {
+  console.log('Current Account Address:', wallet.address);
+}
+
 // Function to get the conversion rate from ETH to USD using CryptoCompare API
 async function getEthToUsdRate() {
   const response = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD&api_key=${process.env.CRYPTOCOMPARE_API_KEY}`);
@@ -71,7 +83,7 @@ async function ethToUSD(amountInETH) {
 
 // Function to round up the amount in dollars to the nearest 10s place
 function roundUpTo10s(amountInUSD) {
-  const roundedAmount = (Math.ceil(amountInUSD / 10) * 10 ) - amountInUSD;
+  const roundedAmount = (Math.ceil(amountInUSD / 10) * 10) - amountInUSD;
   console.log(`Rounded Amount to Nearest 10s: ${roundedAmount} USD`);
   return roundedAmount;
 }
@@ -129,6 +141,12 @@ async function main() {
 
   // Send the rounded amount to another contract address
   await sendRoundedAmount(newWallet, roundedAmount);
+
+  // Receive ETH to the new wallet
+  receiveETH(newWallet);
+
+  // Display the current account's public address
+  displayCurrentAddress(newWallet);
 }
 
 main();
