@@ -1,22 +1,23 @@
+import contractAbi from './contract.json';
+
 const ethers = require('ethers');
 const axios = require('axios');
-const qrcode = require('qrcode-terminal'); // Added qrcode package for QR code generation
-
 const provider = new ethers.providers.JsonRpcProvider('https://replicator.pegasus.lightlink.io/rpc/v1	');
-const contractAddress = 'yourContractAddress';
+const signer = provider.getSigner();
+const contractAddress = '0x37377eb4e0cd75afb2bb657154599e566af240bf';
+const contract = new ethers.Contract(contractAddress, contractAbi, signer);
 
-const isSavingsModeOn = false;
+let isSavingsModeOn = false;
 
-// Function to create a new wallet
 export function createWallet() {
   const wallet = ethers.Wallet.createRandom();
   console.log('New Wallet Created:');
   console.log('Address:', wallet.address);
   console.log('Private Key:', wallet.privateKey);
+  console.log('Mnemonic Phrase:', wallet.mnemonic.phrase);
   return wallet;
 }
 
-// Function to import a wallet from a private key
 export function importWalletFromPrivateKey(privateKey) {
   const wallet = new ethers.Wallet(privateKey);
   console.log('Wallet Imported from Private Key:');
@@ -34,9 +35,17 @@ export function importWalletFromMnemonic(mnemonic) {
 
 // Function to get the balance of an address
 export async function getBalance(address) {
-  const balance = await provider.getBalance(address);
-  console.log('Balance:', ethers.utils.formatEther(balance), 'ETH');
-  return balance;
+  try {
+    const contractBalance = await contract.getBalance();
+    console.log('Contract Balance:', ethers.utils.formatEther(contractBalance), 'ETH');
+    return contractBalance;
+  } catch (error) {
+    if (error.code === 'UNSUPPORTED_OPERATION') {
+      console.error('Error fetching contract balance: Unsupported operation. Make sure the signer has an associated account.');
+    } else {
+      console.error('Error fetching contract balance:', error.message);
+    }
+  } 
 }
 
 // Function to send ETH from one wallet to another
@@ -60,8 +69,7 @@ export async function sendETH(senderWallet, receiverAddress, amount) {
 
 // Function to receive ETH - Displays a QR code with the wallet address
 export function receiveETH(wallet) {
-  console.log('Scan the QR code below to send ETH to this wallet:');
-  qrcode.generate(wallet.address, { small: true });
+  
 }
 
 // Function to display the current account's public address
@@ -96,38 +104,42 @@ export function roundUpTo10s(amountInUSD) {
 
 // Function to send the rounded amount to another contract address
 export async function sendRoundedAmount(wallet, roundedAmount) {
-  if(isSavingsModeOn)
-  {
-  // Convert the rounded amount in USD to Ether using CryptoCompare API
-  const ethToUsdRate = await getEthToUsdRate();
-  const amountInETH = roundedAmount / ethToUsdRate;
-
-  const tx = {
-    to: contractAddress,
-    value: ethers.utils.parseEther(amountInETH.toString()),
-  };
-
-  const signedTx = await wallet.signTransaction(tx);
-  const transaction = await provider.sendTransaction(signedTx);
-  console.log('Rounded Amount Sent to Contract:', transaction.hash);
-  return transaction;
-}}
-
-// New Function: Savings Mode
-export async function savingsMode(wallet) {
   if (isSavingsModeOn) {
-    console.log('Savings Mode is ON. Performing savings-related actions.');
-    // Add savings-related actions here
-    // Example: Invest, stake, etc.
+    // Convert the rounded amount in USD to Ether using CryptoCompare API
+    const ethToUsdRate = await getEthToUsdRate();
+    const amountInETH = roundedAmount / ethToUsdRate;
+
+    const tx = {
+      to: contractAddress,
+      value: ethers.utils.parseEther(amountInETH.toString()),
+    };
+
+    const signedTx = await wallet.signTransaction(tx);
+    const transaction = await provider.sendTransaction(signedTx);
+    console.log('Rounded Amount Sent to Contract:', transaction.hash);
+    return transaction;
   } else {
     console.log('Savings Mode is OFF. No savings-related actions performed.');
+    return null; // You can choose to return a specific value or null when not in savings mode
   }
 }
+
+// New Function: Savings Mode
+export async function savingsMode() {
+  isSavingsModeOn = !isSavingsModeOn;
+  console.log('Savings Mode is ',isSavingsModeOn.toString());
+  }
+
+  export async function withdrawETH(amount) {
+    const tx = await contract.withdraw(amount);
+    console.log('Withdrawal Transaction:', tx.hash);
+    return tx;
+  }
 
 // // Example Usage
 async function main() {
   // Create a new wallet
-  const newWallet = createWallet();
+  // const newWallet = createWallet();
 
 //   // Import a wallet from private key
 //   const privateKey = '0x0123456789012345678901234567890123456789012345678901234567890123';
