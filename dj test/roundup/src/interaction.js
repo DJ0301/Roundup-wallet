@@ -1,83 +1,62 @@
 import contractAbi from './contract.json';
+import Web3 from 'web3';
+import axios from 'axios';
 
-const ethers = require('ethers');
-const axios = require('axios');
-const provider = new ethers.providers.JsonRpcProvider('https://replicator.pegasus.lightlink.io/rpc/v1	');
-const signer = provider.getSigner();
-const contractAddress = '0x37377eb4e0cd75afb2bb657154599e566af240bf';
-const contract = new ethers.Contract(contractAddress, contractAbi, signer);
+const web3 = new Web3('https://replicator.pegasus.lightlink.io/rpc/v1');
+const contractAddress = '0xbB15b1A4Fa50D81b46EA823f73995a98CE8B9FE0';
+const contract = new web3.eth.Contract(contractAbi, contractAddress);
 
 let isSavingsModeOn = false;
 
 export function createWallet() {
-  const wallet = ethers.Wallet.createRandom();
+  let wallet = web3.eth.accounts.create();
   console.log('New Wallet Created:');
   console.log('Address:', wallet.address);
   console.log('Private Key:', wallet.privateKey);
-  console.log('Mnemonic Phrase:', wallet.mnemonic.phrase);
   return wallet;
 }
 
 export function importWalletFromPrivateKey(privateKey) {
-  const wallet = new ethers.Wallet(privateKey);
+  const wallet = web3.eth.accounts.privateKeyToAccount(privateKey);
   console.log('Wallet Imported from Private Key:');
   console.log('Address:', wallet.address);
   return wallet;
 }
 
-// Function to import a wallet from a mnemonic phrase
+
 export function importWalletFromMnemonic(mnemonic) {
-  const wallet = ethers.Wallet.fromMnemonic(mnemonic);
+  const wallet = web3.eth.accounts.wallet.create(1, mnemonic);
   console.log('Wallet Imported from Mnemonic:');
-  console.log('Address:', wallet.address);
-  return wallet;
+  console.log('Address:', wallet[0].address);
+  return wallet[0];
 }
 
-// Function to get the balance of an address
+
 export async function getBalance(address) {
   try {
-    const contractBalance = await contract.getBalance();
-    console.log('Contract Balance:', ethers.utils.formatEther(contractBalance), 'ETH');
-    return contractBalance;
+    const balance = await web3.eth.getBalance(address);
+    console.log(`Balance of ${address}:`, web3.utils.fromWei(balance, 'ether'), 'ETH');
+    return web3.utils.fromWei(balance, 'ether');
   } catch (error) {
-    if (error.code === 'UNSUPPORTED_OPERATION') {
-      console.error('Error fetching contract balance: Unsupported operation. Make sure the signer has an associated account.');
-    } else {
-      console.error('Error fetching contract balance:', error.message);
-    }
-  } 
+    console.error('Error fetching balance:', error.message);
+  }
+}
+export async function getContractBalance(senderAddress) {
+  try {
+    const balance = await contract.methods.getBalance().call({ from: senderAddress });
+    console.log(balance);
+    console.log(`Savings Balance of ${contractAddress}:`, web3.utils.fromWei(balance, 'ether'), 'ETH');
+    return web3.utils.fromWei(balance, 'ether');
+  } catch (error) {
+    console.error('Error fetching balance:', error.message);
+  }
 }
 
-// Function to send ETH from one wallet to another
-export async function sendETH(senderWallet, receiverAddress, amount) {
-  const tx = {
-    to: receiverAddress,
-    value: ethers.utils.parseEther(amount),
-  };
 
-  const signedTx = await senderWallet.signTransaction(tx);
-  const transaction = await provider.sendTransaction(signedTx);
-  console.log('Transaction Sent:', transaction.hash);
-
-  // Call sendRoundedAmount function with a rounded amount
-  const amountInUSD = await ethToUSD(amount);
-  const roundedAmount = roundUpTo10s(parseFloat(amountInUSD));
-  await sendRoundedAmount(senderWallet, roundedAmount);
-
-  return transaction;
-}
-
-// Function to receive ETH - Displays a QR code with the wallet address
-export function receiveETH(wallet) {
-  
-}
-
-// Function to display the current account's public address
 export function displayCurrentAddress(wallet) {
   console.log('Current Account Address:', wallet.address);
 }
 
-// Function to get the conversion rate from ETH to USD using CryptoCompare API
 export async function getEthToUsdRate() {
   const response = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD&api_key=9844d305b168e69b123d44b8a6a22405561bdbe404564553cd31be10fc3226ce`);
   const ethToUsdRate = response.data.USD;
@@ -85,7 +64,6 @@ export async function getEthToUsdRate() {
   return ethToUsdRate;
 }
 
-// Function to convert ETH amount to USD using CryptoCompare API
 export async function ethToUSD(amountInETH) {
   const ethToUsdRate = await getEthToUsdRate();
   const amountInUSD = amountInETH * ethToUsdRate;
@@ -93,94 +71,101 @@ export async function ethToUSD(amountInETH) {
   return amountInUSD;
 }
 
-// Function to round up the amount in dollars to the nearest 10s place
 export function roundUpTo10s(amountInUSD) {
-  if(isSavingsModeOn)
-  {
-  const roundedAmount = (Math.ceil(amountInUSD / 10) * 10) - amountInUSD;
-  console.log(`Rounded Amount to Nearest 10s: ${roundedAmount} USD`);
-  return roundedAmount;
-}}
-
-// Function to send the rounded amount to another contract address
-export async function sendRoundedAmount(wallet, roundedAmount) {
   if (isSavingsModeOn) {
-    // Convert the rounded amount in USD to Ether using CryptoCompare API
+    const roundedAmount = (Math.ceil(amountInUSD / 10) * 10) - amountInUSD;
+    console.log(`Rounded Amount to Nearest 10s: ${roundedAmount} USD`);
+    return roundedAmount;
+  }
+}
+export async function sendETH(senderWallet, receiverAddress, amount) {
+  try {
+    if (!senderWallet || !senderWallet.address) {
+      throw new Error('Sender address not available.');
+    }
+
+    const balance = await web3.eth.getBalance(senderWallet.address);
+    console.log('Sender Balance:', web3.utils.fromWei(balance, 'ether'), 'ETH');
+
+    const tx = {
+      from: senderWallet.address,
+      to: receiverAddress,
+      value: web3.utils.toWei(amount, 'ether'),
+      gas: 2000000, // Example gas limit
+      gasPrice: web3.utils.toWei('10', 'gwei') // Example gas price
+    };
+
+    const signedTx = await web3.eth.accounts.signTransaction(tx, senderWallet.privateKey);
+    const transaction = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+    console.log('Transaction Sent:', transaction.transactionHash);
+
+    const amountInUSD = await ethToUSD(amount);
+    const roundedAmount = roundUpTo10s(parseFloat(amountInUSD));
+    await sendRoundedAmount(senderWallet, roundedAmount);
+
+    return transaction;
+  } catch (error) {
+    console.error('Error sending ETH:', error.message);
+    throw error; // Re-throw the error to handle it in the caller function
+  }
+}
+
+export async function sendRoundedAmount(senderWallet, roundedAmount) {
+  if (isSavingsModeOn) {
     const ethToUsdRate = await getEthToUsdRate();
     const amountInETH = roundedAmount / ethToUsdRate;
 
     const tx = {
+      from: senderWallet.address,
       to: contractAddress,
-      value: ethers.utils.parseEther(amountInETH.toString()),
+      value: web3.utils.toWei(amountInETH, 'ether'),
+      gas: 2000000, // Example gas limit
+      gasPrice: web3.utils.toWei('10', 'gwei') // Example gas price
     };
 
-    const signedTx = await wallet.signTransaction(tx);
-    const transaction = await provider.sendTransaction(signedTx);
-    console.log('Rounded Amount Sent to Contract:', transaction.hash);
+    const signedTx = await senderWallet.signTransaction(tx);
+    const transaction = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+    console.log('Rounded Amount Sent to Contract:', transaction.transactionHash);
     return transaction;
   } else {
     console.log('Savings Mode is OFF. No savings-related actions performed.');
-    return null; // You can choose to return a specific value or null when not in savings mode
+    return null;
   }
 }
 
-// New Function: Savings Mode
 export async function savingsMode() {
   isSavingsModeOn = !isSavingsModeOn;
-  console.log('Savings Mode is ',isSavingsModeOn.toString());
-  }
-
-  export async function withdrawETH(amount) {
-    const tx = await contract.withdraw(amount);
-    console.log('Withdrawal Transaction:', tx.hash);
-    return tx;
-  }
-
-// // Example Usage
-async function main() {
-  // Create a new wallet
-  // const newWallet = createWallet();
-
-//   // Import a wallet from private key
-//   const privateKey = '0x0123456789012345678901234567890123456789012345678901234567890123';
-//   const importedWalletFromPrivateKey = importWalletFromPrivateKey(privateKey);
-
-//   // Import a wallet from mnemonic phrase
-//   const mnemonic = 'word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12';
-//   const importedWalletFromMnemonic = importWalletFromMnemonic(mnemonic);
-
-//   // Get balance of the imported wallets
-//   await getBalance(importedWalletFromPrivateKey.address);
-//   await getBalance(importedWalletFromMnemonic.address);
-
-//   // Send ETH from the new wallet to an imported wallet
-//   const receiverAddress = '0x1234567890123456789012345678901234567890';
-//   const amountToSend = '0.05';
-//   await sendETH(newWallet, receiverAddress, amountToSend);
-
-//   // Get updated balance after sending ETH
-//   await getBalance(importedWalletFromPrivateKey.address);
-//   await getBalance(importedWalletFromMnemonic.address);
-
-//   // Convert ETH to USD using CryptoCompare API
-//   const amountInETH = '0.1';
-//   const amountInUSD = await ethToUSD(amountInETH);
-
-//   // Round up the amount in dollars to the nearest 10s place
-//   const roundedAmount = roundUpTo10s(parseFloat(amountInUSD));
-//   console.log(`Rounded Amount: ${roundedAmount} USD`);
-
-//   // Send the rounded amount to another contract address
-//   await sendRoundedAmount(newWallet, roundedAmount);
-
-//   // Receive ETH to the new wallet
-//   receiveETH(newWallet);
-
-//   // Display the current account's public address
-//   displayCurrentAddress(newWallet);
-
-//   // Execute savings mode
-//   await savingsMode(newWallet);
+  console.log('Savings Mode is ', isSavingsModeOn.toString());
+  return isSavingsModeOn;
 }
 
-main();
+export async function withdrawETH(amount, fromAddress, senderPrivateKey) {
+  try {
+    let amountInWei = web3.utils.toWei(amount, 'ether');
+
+    // Estimate gas for the transaction
+    const gasEstimate = await contract.methods.withdraw(amountInWei).estimateGas({ from: fromAddress });
+
+    // Build the transaction data
+    const transactionData = contract.methods.withdraw(amountInWei).encodeABI();
+
+    // Build the transaction object with gas and gasPrice
+    const transactionObject = {
+      from: fromAddress,
+      to: contractAddress,
+      gas: gasEstimate, // Use the estimated gas value
+      gasPrice: await web3.eth.getGasPrice(), // Get the current gas price from the network
+      data: transactionData,
+    };
+
+    // Sign the transaction
+    const signedTransaction = await web3.eth.accounts.signTransaction(transactionObject, senderPrivateKey);
+
+    // Send the signed transaction
+    const transactionReceipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
+
+    console.log('Withdrawal successful. Transaction hash:', transactionReceipt.transactionHash);
+  } catch (error) {
+    console.error('Error withdrawing funds:', error.message);
+  }
+}

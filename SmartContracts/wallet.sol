@@ -2,32 +2,29 @@
 pragma solidity ^0.8.0;
 
 contract SimpleWallet {
-    address public owner;
-    uint public balance;
+    mapping(address => uint) public balances;
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can call this function");
-        _;
-    }
-
-    constructor() {
-        owner = msg.sender;
-    }
-
-    function fund() external payable {
+    function deposit() public  payable {
         require(msg.value > 0, "You must send some ether");
-        balance += msg.value;
+        balances[msg.sender] += msg.value;
     }
 
-    function withdraw(uint _amount) external onlyOwner {
+    function withdraw(uint _amount) external {
         require(_amount > 0, "Withdrawal amount must be greater than 0");
-        require(_amount <= balance, "Insufficient funds");
-        payable(owner).transfer(_amount);
-        balance -= _amount;
+        require(_amount <= balances[msg.sender], "Insufficient funds");
+        payable(msg.sender).transfer(_amount);
+        balances[msg.sender] -= _amount;
     }
+
+    function getBalance() public view returns (uint256) {
+        return balances[msg.sender];
+    }
+
+    fallback() external payable {
+        deposit();
+        }
 
     receive() external payable {
-        // Fallback function to receive ether
-        balance += msg.value;
+        deposit();
     }
 }

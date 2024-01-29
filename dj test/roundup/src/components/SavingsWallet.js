@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { withdrawETH, getBalance } from '../interaction.js'; // Import the withdrawETH and getSavingsBalance functions
-import { wallet } from './ExportFuncs.js';
+import { withdrawETH, getContractBalance } from '../interaction.js'; // Import the withdrawETH and getSavingsBalance functions
 import { generateNFT } from '../nft.js'; // Import the generateNFT function
+import { wallet } from './ExportFuncs.js';
+import { generateNFTImage,uploadImage,uploadMetadata } from '../nftImage';
+const currentDate = new Date().toLocaleDateString('en-GB', {
+  day: '2-digit',
+  month: '2-digit',
+  year: '2-digit'
+}).replace(/\//g, '-'); 
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2, '0'); // Month is zero-indexed
+const dd = String(today.getDate()).padStart(2, '0');
+const fullDate = parseInt(`${yyyy}${mm}${dd}`);
 
 const SavingsWallet = () => {
   const [savingsBalance, setSavingsBalance] = useState(0);
@@ -12,7 +23,7 @@ const SavingsWallet = () => {
   useEffect(() => {
     async function fetchSavingsBalance() {
       try {
-        const balance = await getBalance(); // Call the getSavingsBalance function from interaction.js
+        const balance = await getContractBalance(wallet.address); 
         setSavingsBalance(balance);
       } catch (error) {
         console.error('Error fetching savings balance:', error.message);
@@ -28,9 +39,8 @@ const SavingsWallet = () => {
     }
 
     try {
-      await withdrawETH(parseFloat(withdrawAmount)); // Call the withdrawETH function
+      await withdrawETH(parseFloat(withdrawAmount),wallet.address,wallet.privateKey); // Call the withdrawETH function
       setWithdrawSuccess(true);
-      setSavingsBalance(prevBalance => prevBalance - parseFloat(withdrawAmount));
     } catch (error) {
       setWithdrawError(`Error withdrawing from savings: ${error.message}`);
     }
@@ -38,12 +48,24 @@ const SavingsWallet = () => {
 
   const handleGenerateNFT = async () => {
     try {
-      await generateNFT(); // Call the generateNFT function from nft.js
-      console.log('Friday NFT generated successfully!');
+        const today = new Date().getDay();
+        // if (today !== 5) {
+        //     alert('NFT generation only occurs on Fridays!');
+        //     return; 
+        // }
+        const savingsMessage = `You have now saved ${savingsBalance} ETH !`;
+        await generateNFTImage(savingsMessage);
+        const imageCID = await uploadImage(`'/Users/dhananjayjoshi/Documents/GitHub/Roundup-wallet/dj test/roundup/${currentDate}.svg'`);
+        console.log(imageCID);
+        // await uploadMetadata(imageCID);
+        // generateNFT(wallet.address, fullDate, `ipfs://${imageCID}`);
+        console.log('Friday NFT generated successfully!');
     } catch (error) {
-      console.error('Error generating Friday NFT:', error.message);
+        console.error('Error generating Friday NFT:', error.message);
     }
-  };
+};
+
+
 
   return (
     <div>

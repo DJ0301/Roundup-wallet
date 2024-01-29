@@ -6,7 +6,7 @@ import SavingsWallet from './components/SavingsWallet';
 function App() {
   return (
     <div className="App">
-      <SavingsWallet/>
+      <WalletComponent/>
     </div>
   );
 }

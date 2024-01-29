@@ -7,6 +7,10 @@
 		"type": "function"
 	},
 	{
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
