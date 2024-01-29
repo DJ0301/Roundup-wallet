@@ -3,7 +3,7 @@ import Web3 from 'web3';
 import axios from 'axios';
 
 const web3 = new Web3('https://replicator.pegasus.lightlink.io/rpc/v1');
-const contractAddress = '0xbB15b1A4Fa50D81b46EA823f73995a98CE8B9FE0';
+const contractAddress = '0x72f3455e416cf3bd14a2138fd59b5802d1fe6852';
 const contract = new web3.eth.Contract(contractAbi, contractAddress);
 
 let isSavingsModeOn = false;
@@ -44,7 +44,6 @@ export async function getBalance(address) {
 export async function getContractBalance(senderAddress) {
   try {
     const balance = await contract.methods.getBalance().call({ from: senderAddress });
-    console.log(balance);
     console.log(`Savings Balance of ${contractAddress}:`, web3.utils.fromWei(balance, 'ether'), 'ETH');
     return web3.utils.fromWei(balance, 'ether');
   } catch (error) {
@@ -52,10 +51,6 @@ export async function getContractBalance(senderAddress) {
   }
 }
 
-
-export function displayCurrentAddress(wallet) {
-  console.log('Current Account Address:', wallet.address);
-}
 
 export async function getEthToUsdRate() {
   const response = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD&api_key=9844d305b168e69b123d44b8a6a22405561bdbe404564553cd31be10fc3226ce`);

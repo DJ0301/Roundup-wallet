@@ -43,7 +43,7 @@ const uploadImage = async (file) => {
   
       const resData = await res.json(); // Parse response as JSON
   
-      console.log("File uploaded, CID:", resData);
+      console.log("File uploaded, CID:", resData.IpfsHash);
       return resData.IpfsHash; // Return the CID
     } catch (error) {
       console.log(error);

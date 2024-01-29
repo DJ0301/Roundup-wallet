@@ -21,7 +21,7 @@ export async function uploadImage(file) {
       }
   })
   .then(response => {
-      console.log('Image uploaded successfully. CID:', response.data.CID);
+      console.log('Image uploaded successfully. CID:', response.data);
   })
   .catch(error => {
       console.error('Error uploading image:', error);

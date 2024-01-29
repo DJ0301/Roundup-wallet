@@ -55,10 +55,10 @@ const SavingsWallet = () => {
         // }
         const savingsMessage = `You have now saved ${savingsBalance} ETH !`;
         await generateNFTImage(savingsMessage);
-        const imageCID = await uploadImage(`'/Users/dhananjayjoshi/Documents/GitHub/Roundup-wallet/dj test/roundup/${currentDate}.svg'`);
+        const imageCID = await uploadImage(`/Users/dhananjayjoshi/Documents/GitHub/Roundup-wallet/dj test/roundup/${currentDate}.svg`);
         console.log(imageCID);
         // await uploadMetadata(imageCID);
-        // generateNFT(wallet.address, fullDate, `ipfs://${imageCID}`);
+        // generateNFT(wallet.address, fullDate, `ipfs://${imageCID}`,wallet.privateKey);
         console.log('Friday NFT generated successfully!');
     } catch (error) {
         console.error('Error generating Friday NFT:', error.message);

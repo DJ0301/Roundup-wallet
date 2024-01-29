@@ -41,10 +41,7 @@ const WalletActionsComponent = () => {
     }
   };
 
-  const handleReceiveETH = () => {
-    setShowQRCode(true);
-    setCurrentView('main');
-  };
+  
 
   const handleSendClick = () => {
     setIsSendClicked(true);
@@ -67,16 +64,17 @@ const WalletActionsComponent = () => {
     savingsMode(); // Call the savingsMode function
     setIsSavingsModeOn(e.target.checked); // Toggle savings mode state based on checkbox value
   };
-
+  const handleViewNFT = () => {
+    window.location.href = 'https://testnets.opensea.io/assets/goerli/0xd8b934580fcE35a11B58C6D73aDeE468a2833fa8';
+  };
+    
   return (
     <div>
-
       <div>
         <p>Current Wallet Address: <b>{wallet.address}</b></p>
         <p>Current Network: <b>Lightlink Pegasus Testnet</b></p>
         <p>Current Balance: <b>{balance} ETH</b></p> {/* Display the balance */}
       </div>
-
       {currentView === 'main' && (
         <div>
           <button onClick={handleSendClick}>Send</button>
@@ -88,6 +86,7 @@ const WalletActionsComponent = () => {
               onChange={handleSavingsMode}
             />
           </label>
+          <button onClick={handleViewNFT}>View my NFTs</button>
         </div>
       )}
 
