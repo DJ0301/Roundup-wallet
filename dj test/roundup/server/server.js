@@ -1,14 +1,19 @@
 const express = require('express');
 const app = express();
 const fs = require('fs');
+const bodyParser = require('body-parser');
 const cors = require('cors'); // Import cors module
 const currentDate = new Date().toLocaleDateString('en-GB', {
     day: '2-digit',
     month: '2-digit',
     year: '2-digit'
 }).replace(/\//g, '-'); 
-
+const axios = require('axios');
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+const pinataApiKey = '1f7f2180d0fdd2aa1663';
+const pinataSecretApiKey = '3ed46755250308ffb5bfe870f8403ff1859377aed3a8198d32dd0de995c56ff0';
 
 function generateNFTImage(text) {
     // Get current date in dd/mm/yy format
@@ -26,60 +31,58 @@ function generateNFTImage(text) {
 }
 
 const FormData = require("form-data")
-const fetch = require("node-fetch")
 
-const uploadImage = async (file) => {
-    try {
-      const data = new FormData();
-      data.append(`${currentDate}.svg`, fs.createReadStream(file));
-  
-      const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI2NTJjMDQ1OC1iZGZkLTQwNmMtYmE1NC01MmU0MGQ1YWNmNTgiLCJlbWFpbCI6ImRoYW5hbmpheWJ1aWRsQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiIxNTM3MjllOTRhMGY0NDk0Yjc4YSIsInNjb3BlZEtleVNlY3JldCI6IjRhMDQzMjYwYTU0MTllZjQ1ZDI1ZDBhZjNlMjE1MzZiZGEwY2VmYjFiYWQwMzRiMWM5M2Y1MmM1MWY4ZWUxMDEiLCJpYXQiOjE3MDYzOTEwNDJ9.AEgUFIywMLuAL5Js0geEutJBP-8azM4FstTAAsxnWhQ`
-        },
-        body: data
-      });
-  
-      const resData = await res.json(); // Parse response as JSON
-  
-      console.log("File uploaded, CID:", resData.IpfsHash);
-      return resData.IpfsHash; // Return the CID
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  
 
-const uploadMetadata = async (CID) => {
+async function uploadImage(imagePath) {
   try {
-    const data = JSON.stringify({
-      pinataContent: {
-        name: `Your savings for the week: ${currentDate}`,
-        description: `This is an NFT displaying your savings for the week: ${currentDate}`,
-        image: `ipfs://${CID}`,
-      },
+      const formData = new FormData();
+      formData.append('file', fs.createReadStream(imagePath));
+      const response = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', formData, {
+          headers: {
+              'Content-Type':`multipart/form-data, boundary=${formData._boundary}`,
+              'pinata_api_key': pinataApiKey,
+              'pinata_secret_api_key': pinataSecretApiKey
+          }
+      });
+      console.log('Image uploaded to IPFS. IPFS Hash:', response.data.IpfsHash);
+      return response.data.IpfsHash; 
+  } catch (error) {
+      console.error('Error uploading image to IPFS:', error);
+      throw error;
+  }
+}
+
+async function uploadMetadata(CID) {
+  try {
+    // Create the metadata object
+    const metadata = {
+      name: 'My NFT for savings for the week of '+currentDate ,
+      description: 'This is an NFT representing my savings for the week of '+currentDate,
+      image: `https://ipfs.io/ipfs/${CID}`,
+    };
+
+    const formData = new FormData();
+    formData.append('file', JSON.stringify(metadata), { filename: 'metadata.json' }); // Convert metadata to JSON string and append to FormData
+
+    const response = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Set Content-Type header for FormData
+        'pinata_api_key': pinataApiKey,
+        'pinata_secret_api_key': pinataSecretApiKey
+      }
     });
 
-    const res = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI2NTJjMDQ1OC1iZGZkLTQwNmMtYmE1NC01MmU0MGQ1YWNmNTgiLCJlbWFpbCI6ImRoYW5hbmpheWJ1aWRsQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiIxNTM3MjllOTRhMGY0NDk0Yjc4YSIsInNjb3BlZEtleVNlY3JldCI6IjRhMDQzMjYwYTU0MTllZjQ1ZDI1ZDBhZjNlMjE1MzZiZGEwY2VmYjFiYWQwMzRiMWM5M2Y1MmM1MWY4ZWUxMDEiLCJpYXQiOjE3MDYzOTEwNDJ9.AEgUFIywMLuAL5Js0geEutJBP-8azM4FstTAAsxnWhQ`
-      },
-      body: data
-    })
-    const resData = await res.json()
-    console.log("Metadata uploaded, CID:", resData.IpfsHash)
-    return resData.IpfsHash
+    console.log('Metadata uploaded to IPFS. IPFS Hash:', response.data.IpfsHash);
+    return response.data.IpfsHash; // Return the IPFS hash
   } catch (error) {
-    console.log(error)
+    console.error('Error uploading metadata to IPFS:', error);
+    throw error;
   }
 }
 
 
 app.get('/api/generate-nft', (req, res) => {
-    const { text } = req.query;
+    const text = req.query;
     if (!text) {
         return res.status(400).send('Text parameter is required.');
     }
@@ -90,44 +93,50 @@ app.get('/api/generate-nft', (req, res) => {
     // Return success response
     return res.status(200).send('NFT image generated successfully.');
 });
+// app.post('/api/upload-image', async (req, res) => {
+//     try {
+//         const { imagePath } = req.body;
+//         const imageCid = await uploadImage(imagePath);
+//         res.json({ imageCid });
+//     } catch (error) {
+//         console.error('Error uploading image:', error);
+//         res.status(500).json({ error: 'Internal server error.' });
+//     }
+// });
 
-app.get('/api/upload-image', async (req, res) => {
-    try {
-        const { file } = req.query;
-        if (!file) {
-            return res.status(400).send('File parameter is required.');
-        }
-
-        // Call the function to upload the image
-        const CID = await uploadImage(file);
-
-        // Return success response with CID
-        return res.status(200).json({ CID });
-    } catch (error) {
-        console.error('Error uploading image:', error);
-        return res.status(500).send('Internal server error.');
-    }
-});
-
-app.get('/api/upload-metadata', async (req, res) => {
-    try {
-        const { CID } = req.query; // Assuming the CID is provided as a query parameter
-        if (!CID) {
-            return res.status(400).send('CID parameter is required.');
-        }
-
-        // Call the function to upload metadata
-        const metadataCID = await uploadMetadata(CID);
-
-        // Return success response with metadata CID
-        return res.status(200).json({ metadataCID });
-    } catch (error) {
-        console.error('Error uploading metadata:', error);
-        return res.status(500).send('Internal server error.');
-    }
-});
 
 // Start the server
+
+app.post('/api/upload-image', (req, res) => {
+  console.log(req.body.imagePath);
+  if (!req.body.imagePath) {
+      return res.status(400).json({ error: 'Image path is required.' });
+  }
+  uploadImage(req.body.imagePath)
+      .then(imageCid => {
+          res.json({ imageCid });
+      })
+      .catch(error => {
+          console.error('Error uploading image:', error);
+          res.status(500).json({ error: 'Internal server error.' });
+      });
+});
+
+// Function to upload metadata to IPFS
+app.post('/api/upload-metadata', (req, res) => {
+  if (!req.body.CID) {
+      return res.status(400).json({ error: 'CID is required.' });
+  }
+  uploadMetadata(req.body.CID)
+      .then(metadataCid => {
+          res.json({ metadataCid });
+      })
+      .catch(error => {
+          console.error('Error uploading metadata:', error);
+          res.status(500).json({ error: 'Internal server error.' });
+      });
+});
+
 const port = 3001;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

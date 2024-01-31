@@ -41,8 +41,6 @@ const WalletActionsComponent = () => {
     }
   };
 
-  
-
   const handleSendClick = () => {
     setIsSendClicked(true);
     setCurrentView('send');
@@ -64,10 +62,21 @@ const WalletActionsComponent = () => {
     savingsMode(); // Call the savingsMode function
     setIsSavingsModeOn(e.target.checked); // Toggle savings mode state based on checkbox value
   };
+
   const handleViewNFT = () => {
     window.location.href = 'https://testnets.opensea.io/assets/goerli/0xd8b934580fcE35a11B58C6D73aDeE468a2833fa8';
   };
-    
+
+  const updateBalance = async () => {
+    try {
+      const updatedBalance = await getBalance(wallet.address);
+      setBalance(updatedBalance);
+    } catch (error) {
+      console.error('Error updating balance:', error);
+      // Handle error (e.g., display error message)
+    }
+  };
+
   return (
     <div>
       <div>
@@ -129,9 +138,10 @@ const WalletActionsComponent = () => {
       {currentView !== 'main' && (
         <button onClick={handleBackButtonClick}>Back</button>
       )}
-
+    <div style={{ textAlign: 'center' }}>
+        <button onClick={updateBalance}>Update Balance</button>
+      </div>
       {isSavingsModeOn && <SavingsWallet />} {/* Display SavingsWallet only if savings mode is on */}
-
     </div>
   );
 };

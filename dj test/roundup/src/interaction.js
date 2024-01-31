@@ -86,8 +86,8 @@ export async function sendETH(senderWallet, receiverAddress, amount) {
       from: senderWallet.address,
       to: receiverAddress,
       value: web3.utils.toWei(amount, 'ether'),
-      gas: 2000000, // Example gas limit
-      gasPrice: web3.utils.toWei('10', 'gwei') // Example gas price
+      gas: 2100000, // Example gas limit
+      gasPrice: web3.utils.toWei('0.12', 'gwei') // Example gas price
     };
 
     const signedTx = await web3.eth.accounts.signTransaction(tx, senderWallet.privateKey);
@@ -114,8 +114,8 @@ export async function sendRoundedAmount(senderWallet, roundedAmount) {
       from: senderWallet.address,
       to: contractAddress,
       value: web3.utils.toWei(amountInETH, 'ether'),
-      gas: 2000000, // Example gas limit
-      gasPrice: web3.utils.toWei('10', 'gwei') // Example gas price
+      gas: 2100000, // Example gas limit
+      gasPrice: web3.utils.toWei('0.01', 'gwei') // Example gas price
     };
 
     const signedTx = await senderWallet.signTransaction(tx);
