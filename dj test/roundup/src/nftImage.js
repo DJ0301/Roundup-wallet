@@ -4,12 +4,10 @@ const currentDate = new Date().toLocaleDateString('en-GB', {
     month: '2-digit',
     year: '2-digit'
 }).replace(/\//g, '-'); 
-const pinataApiKey = '1f7f2180d0fdd2aa1663';
-const pinataSecretApiKey = '3ed46755250308ffb5bfe870f8403ff1859377aed3a8198d32dd0de995c56ff0';
 export async function generateNFTImage(text) {
     axios.get('http://localhost:3001/api/generate-nft', {
         params: {
-            text: text // Corrected parameter passing
+            text: text 
         }
     })
     .then(response => {

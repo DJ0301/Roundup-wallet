@@ -60,10 +60,11 @@ const SavingsWallet = () => {
         await generateNFTImage(savingsMessage);
         const imageCID = await uploadImage(`/Users/dhananjayjoshi/Documents/GitHub/Roundup-wallet/dj test/roundup/${currentDate}.svg`);
         console.log(imageCID);
-        await uploadMetadata(imageCID);
+        const metadataCid = await uploadMetadata(imageCID)
         console.log('Metadata uploaded successfully!');
-        await generateNFT(wallet.address, fullDate, `ipfs://${imageCID}`,wallet.privateKey);
+        await generateNFT(wallet.address, fullDate, `ipfs://${metadataCid}`,wallet.privateKey);
         console.log('Friday NFT generated successfully!');
+        alert('NFT generated ! \n\n View here : ipfs:// \n\n (If there is no URL then error in generation. Please check funds)',metadataCid);
     } catch (error) {
       console.error('Error generating Friday NFT:', error.message);
     }
@@ -87,7 +88,8 @@ const SavingsWallet = () => {
         />
       </label>
       <button onClick={handleWithdraw}>Withdraw</button>
-
+      <br></br>
+      <br></br>
       <button onClick={handleGenerateNFT}>Generate My Friday NFT</button>
 
       <button onClick={handleUpdateBalance}>Update Savings Balance</button>

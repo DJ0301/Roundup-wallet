@@ -3,7 +3,7 @@ import { sendETH, savingsMode, getBalance } from '../interaction.js';
 import { wallet } from './ExportFuncs.js';
 import QRCode from 'qrcode.react';
 import SavingsWallet from './SavingsWallet.js'; // Import the component to display when savings mode is on
-
+import './WalletFunc.css'
 const WalletActionsComponent = () => {
   const [amountToSend, setAmountToSend] = useState('');
   const [recipientAddress, setRecipientAddress] = useState('');
@@ -64,8 +64,9 @@ const WalletActionsComponent = () => {
   };
 
   const handleViewNFT = () => {
-    window.location.href = 'https://testnets.opensea.io/assets/goerli/0xd8b934580fcE35a11B58C6D73aDeE468a2833fa8';
+    window.open(`https://pegasus.lightlink.io/address/${wallet.address}`, '_blank');
   };
+  
 
   const updateBalance = async () => {
     try {
@@ -79,6 +80,10 @@ const WalletActionsComponent = () => {
 
   return (
     <div>
+      <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    /> 
       <div>
         <p>Current Wallet Address: <b>{wallet.address}</b></p>
         <p>Current Network: <b>Lightlink Pegasus Testnet</b></p>
@@ -88,14 +93,24 @@ const WalletActionsComponent = () => {
         <div>
           <button onClick={handleSendClick}>Send</button>
           <button onClick={handleReceiveClick}>Receive ETH</button>
-          <label>
-            Savings Mode:
+          <br></br>
+          <br></br>
+          <div style={{ textAlign: 'center' }}>
+          <button onClick={handleViewNFT}>View my NFTs</button>
+        <button onClick={updateBalance}>Update Balance</button>
+        <br></br>
+          <br></br>
+          <div className='svng'>
+          <label className='btn'>
+            Savings Mode: 
+            </label>
             <input
               type="checkbox"
               onChange={handleSavingsMode}
+              className="check"
             />
-          </label>
-          <button onClick={handleViewNFT}>View my NFTs</button>
+          </div>
+      </div>
         </div>
       )}
 
@@ -109,6 +124,8 @@ const WalletActionsComponent = () => {
               onChange={(e) => setAmountToSend(e.target.value)}
             />
           </label>
+          <br></br>
+          <br></br>
           <label>
             Recipient Address:
             <input
@@ -117,7 +134,11 @@ const WalletActionsComponent = () => {
               onChange={(e) => setRecipientAddress(e.target.value)}
             />
           </label>
+          <br></br>
+          <br></br>
           <button onClick={handleSendETH}>Send ETH</button>
+          <br></br>
+          <br></br>
         </div>
       )}
 
@@ -138,9 +159,7 @@ const WalletActionsComponent = () => {
       {currentView !== 'main' && (
         <button onClick={handleBackButtonClick}>Back</button>
       )}
-    <div style={{ textAlign: 'center' }}>
-        <button onClick={updateBalance}>Update Balance</button>
-      </div>
+    
       {isSavingsModeOn && <SavingsWallet />} {/* Display SavingsWallet only if savings mode is on */}
     </div>
   );

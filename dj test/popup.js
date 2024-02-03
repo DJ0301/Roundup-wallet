@@ -31,5 +31,4 @@ function encodeImage() {
     const imageContent = fs.readFileSync('/Users/dhananjayjoshi/Documents/GitHub/Roundup-wallet/dj test/roundup/src/bg.png', 'base64');
     return imageContent;
 }
-
 generateNFTImage("Your savings this week: $100!");
