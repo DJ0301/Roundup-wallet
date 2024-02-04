@@ -15,9 +15,9 @@ Gullak. It's a Hindi word that translates to "piggy bank" or "money box" in Engl
 ## Getting Started
 
 To get started with Gullak, follow these steps:
-
-1. Run the script `npm run start-server` to start the server.
-2. Start the app using `npm start`.
+1. Please head over to the roundup-wallet folder in dj test.
+2. Run the script `npm run start-server` to start the server.
+3. Start the app using `npm start`.
 
 ## Contributing
 
