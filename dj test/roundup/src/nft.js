@@ -11,10 +11,8 @@ export async function generateNFT(to, tokenId, uri,senderPrivateKey) {
   try {
     // Get the current gas price from the network
     const gasPrice = await web3.eth.getGasPrice();
-
     // Estimate gas for the transaction
     const gasEstimate = await contract.methods.safeMint(to, tokenId, uri).estimateGas({ from: to });
-
     // Build the transaction object
     const transactionObject = {
       from: to,
@@ -23,13 +21,10 @@ export async function generateNFT(to, tokenId, uri,senderPrivateKey) {
       gasPrice: gasPrice,
       data: contract.methods.safeMint(to, tokenId, uri).encodeABI(),
     };
-
     // Sign the transaction
     const signedTransaction = await web3.eth.accounts.signTransaction(transactionObject, senderPrivateKey);
-
     // Send the signed transaction
     const transactionReceipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
-
     console.log('NFT minted successfully. Transaction hash:', transactionReceipt.transactionHash);
   } catch (error) {
     console.error('Error minting NFT:', error.message);

@@ -3,7 +3,7 @@ import { withdrawETH, getContractBalance } from '../interaction.js'; // Import t
 import { generateNFT } from '../nft.js'; // Import the generateNFT function
 import { wallet } from './ExportFuncs.js';
 import { generateNFTImage, uploadImage, uploadMetadata } from '../nftImage';
-import './SavingsWallet.css';
+
 const currentDate = new Date().toLocaleDateString('en-GB', {
   day: '2-digit',
   month: '2-digit',
@@ -52,10 +52,10 @@ const SavingsWallet = () => {
   const handleGenerateNFT = async () => {
     try {
       const today = new Date().getDay();
-        // if (today !== 5) {
-        //     alert('NFT generation only occurs on Fridays!');
-        //     return; 
-        // }
+        if (today !== 5) {
+            alert('NFT generation only occurs on Fridays!');
+            return; 
+        }
         const savingsMessage = `You have now saved ${savingsBalance} ETH !`;
         await generateNFTImage(savingsMessage);
         const imageCID = await uploadImage(`/Users/dhananjayjoshi/Documents/GitHub/Roundup-wallet/dj test/roundup/${currentDate}.svg`);
@@ -74,38 +74,30 @@ const SavingsWallet = () => {
     await fetchSavingsBalance();
   };
 
-    return (
-        <div className='savings-wallet-container'>
-            <h2>Savings Wallet</h2>
-            <p className='savings-balance'>Savings Balance: {savingsBalance} ETH</p>
+  return (
+    <div>
+      <h2>Savings Wallet</h2>
+      <p>Savings Balance: {savingsBalance} ETH</p>
 
-            <label className='withdraw-label'>
-                Withdraw Amount (ETH):&nbsp;
-                <input
-                    className='withdraw-input'
-                    type='text'
-                    value={withdrawAmount}
-                    onChange={(e) => setWithdrawAmount(e.target.value)}
-                />
-            </label>
-            <button className='withdraw-button ' onClick={handleWithdraw}>
-                Withdraw
-            </button>
-            <br></br>
-            <button className='nft-button' onClick={handleGenerateNFT}>
-                Generate My Friday NFT
-            </button>
+      <label>
+        Withdraw Amount (ETH):
+        <input
+          type="text"
+          value={withdrawAmount}
+          onChange={(e) => setWithdrawAmount(e.target.value)}
+        />
+      </label>
+      <button onClick={handleWithdraw}>Withdraw</button>
+      <br></br>
+      <br></br>
+      <button onClick={handleGenerateNFT}>Generate My Friday NFT</button>
 
-            <button className='update-balance-button' onClick={handleUpdateBalance}>
-                Update Savings Balance
-            </button>
+      <button onClick={handleUpdateBalance}>Update Savings Balance</button>
 
-            {withdrawSuccess && (
-                <p className='success-message'>Withdrawal successful!</p>
-            )}
-            {withdrawError && <p className='error-message'>{withdrawError}</p>}
-        </div>
-    );
+      {withdrawSuccess && <p>Withdrawal successful!</p>}
+      {withdrawError && <p>{withdrawError}</p>}
+    </div>
+  );
 };
 
 export default SavingsWallet;

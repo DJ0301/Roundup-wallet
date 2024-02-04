@@ -1,0 +1,83 @@
+input[type="checkbox"] {
+    height: 20px; /* Decreased from 200px */
+    width: 20px; /* Decreased from 200px */
+    -webkit-appearance: none;
+    box-shadow: 
+      -2px -2px 3px rgba(255, 255, 255, 0.5), /* Adjusted from -10px -10px 15px */
+      2px 2px 3px rgba(70, 70, 70, 0.12); /* Adjusted from 10px 10px 15px */
+    border-radius: 50%;
+    border: 4px solid #ececec; /* Adjusted from 20px */
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  input[type="checkbox"]::after {
+    font-family: FontAwesome;
+    content: "\f011";
+    color: #7a7a7a;
+    font-size: 28px; /* Adjusted from 70px */
+  }
+  
+  input[type="checkbox"]:checked {
+    box-shadow: 
+      -4px -4px 6px rgba(255, 255, 255, 0.5),
+      4px 4px 6px rgba(70, 70, 70, 0.12),
+      inset -4px -4px 6px rgba(255, 255, 255, 0.5),
+      inset 4px 4px 6px rgba(70, 70, 70, 0.12);
+  }
+  
+  input[type="checkbox"]:checked::after {
+    color: #15e38a;
+  }
+
+.svng {
+  display: inline-flex; /* Display the label and checkbox in a single line */
+  align-items: center; /* Align items vertically */
+}
+.btn{
+    margin-right: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    background-color: green;
+    color: #fff;
+    box-shadow: 
+      -2px -2px 3px rgba(255, 255, 255, 0.5), /* Adjusted from -10px -10px 15px */
+      2px 2px 3px rgba(70, 70, 70, 0.12); /* Adjusted from 10px 10px 15px */
+    border-radius: 50%;
+}
+.check {
+  height: 20px;
+  width: 20px;
+  -webkit-appearance: none;
+  box-shadow: 
+    -2px -2px 3px rgba(255, 255, 255, 0.5),
+    2px 2px 3px rgba(70, 70, 70, 0.12);
+  border-radius: 50%;
+  border: 4px solid #ececec;
+  outline: none;
+  cursor: pointer;
+  margin-left: 8px; /* Adjust the margin between the checkbox and the label */
+}
+
+input[type="checkbox"]::after {
+  font-family: FontAwesome;
+  content: "\f011";
+  color: #7a7a7a;
+  font-size: 28px;
+}
+
+input[type="checkbox"]:checked {
+  box-shadow: 
+    -4px -4px 6px rgba(255, 255, 255, 0.5),
+    4px 4px 6px rgba(70, 70, 70, 0.12),
+    inset -4px -4px 6px rgba(255, 255, 255, 0.5),
+    inset 4px 4px 6px rgba(70, 70, 70, 0.12);
+}
+
+input[type="checkbox"]:checked::after {
+  color: #15e38a;
+}

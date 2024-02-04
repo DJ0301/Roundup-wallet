@@ -81,13 +81,12 @@ export async function sendETH(senderWallet, receiverAddress, amount) {
 
     const balance = await web3.eth.getBalance(senderWallet.address);
     console.log('Sender Balance:', web3.utils.fromWei(balance, 'ether'), 'ETH');
-
     const tx = {
       from: senderWallet.address,
       to: receiverAddress,
       value: web3.utils.toWei(amount, 'ether'),
       gas: 2100000, // Example gas limit
-      gasPrice: web3.utils.toWei('0.12', 'gwei') // Example gas price
+      gasPrice: await web3.eth.getGasPrice() // Example gas price
     };
 
     const signedTx = await web3.eth.accounts.signTransaction(tx, senderWallet.privateKey);

@@ -1,0 +1,53 @@
+.savings-wallet-container {
+    background-color: black;
+    color: orange;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.savings-wallet-container h2 {
+    margin-bottom: 20px;
+}
+
+.savings-balance {
+    margin-bottom: 20px;
+}
+
+.withdraw-label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.withdraw-input {
+    background-color: black;
+    color: orange;
+    border: 1px solid orange;
+    outline: none;
+    /* border: none; */
+    padding: 8px;
+    margin-right: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.withdraw-button,
+.nft-button,
+.update-balance-button {
+    background-color: orange;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.success-message,
+.error-message {
+    margin-top: 10px;
+    color: orange;
+}
+

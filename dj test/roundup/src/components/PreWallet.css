@@ -1,27 +1,120 @@
-/* WalletComponent.css */
-
 .wallet-container {
-    max-width: 500px;
-    margin: 0 auto;
+    background-color: black;
+    color: orange;
     padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%)
 }
 
-.wallet-container button {
-    margin-right: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
+.wallet-info p {
+    margin: 5px 0;
+}
+
+.wallet-buttons button {
+    background-color: orange;
+    color: black;
     border: none;
+    padding: 10px 20px;
     border-radius: 5px;
-    background-color: #007bff;
-    color: #fff;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.wallet-buttons button:hover {
+    background-color: darkorange;
+}
+
+.savings-mode-label {
+    color: orange;
+    margin-bottom: 10px;
+}
+
+.send-section,
+.receive-section {
+    margin-bottom: 20px;
+}
+
+.send-section label,
+.receive-section p {
+    margin-bottom: 10px;
+    color: orange;
+}
+
+.send-section input,
+.receive-section QRCode {
+    background-color: orange;
+    color: black;
+    border: none;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+.send-section button,
+.receive-section button {
+    background-color: orange;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
     cursor: pointer;
 }
 
-.wallet-container button:hover {
-    background-color: #0056b3;
+.send-section button:hover,
+.receive-section button:hover {
+    background-color: darkorange;
+}
+
+.error-popup {
+    background-color: rgba(255, 0, 0, 0.2);
+    color: red;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.error-popup button {
+    background-color: orange;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.error-popup button:hover {
+    background-color: darkorange;
+}
+
+.back-button {
+    background-color: orange;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.back-button:hover {
+    background-color: darkorange;
+}
+
+.update-balance-button button {
+    background-color: orange;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.update-balance-button button:hover {
+    background-color: darkorange;
 }
 
 .wallet-container input {
@@ -32,19 +125,6 @@
     border-radius: 5px;
 }
 
-.tooltip-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.tooltip-container span {
-    font-size: 16px;
-    cursor: pointer;
-}
-
-/* Additional styles */
-
 .dropdown-menu {
     display: flex;
     flex-direction: column;
@@ -52,29 +132,28 @@
 }
 
 .dropdown-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
+    background-color: black;
+    color: orange;
+    border: 2px solid orange;
     padding: 8px 16px;
-    border-radius: 20px; /* Rounded border for toggle appearance */
+    border-radius: 20px;
     cursor: pointer;
     margin-bottom: 8px;
-    transition: background-color 0.3s ease; /* Smooth transition */
+    transition: background-color 0.3s ease;
 }
 
 .dropdown-button:hover {
-    background-color: #0056b3;
-}
-
-.dropdown-button.active {
-    background-color: #28a745; /* Change background color when active */
+    color: black;
+    background-color: orange;
+    transition: color 0.3s ease;
 }
 
 .network {
     width: 200px;
     position: absolute;
-    top: 2px;
-    left: 29%;
+    top: 10px;
+    left: 50%;
+    transform: translate(-50%);
     font-size: 16px;
     font-weight: bold;
-  }
+}
